@@ -70,6 +70,7 @@ point your client at `http://127.0.0.1:8299/v1`.
 | `docs/02-benchmarks.md` | Measured numbers with protocols and third-party baselines |
 | `docs/03-known-issues.md` | Known issues and workarounds |
 | `docs/04-downloads.md` | Download links, checksums, runtime prerequisites |
+| `docs/05-launch-guide.md` | Fully tuned launch guide plus a llama-server flag mapping |
 | `benchmarks/summary.md` | All numbers in one place |
 
 ## License
