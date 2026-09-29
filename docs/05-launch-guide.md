@@ -93,3 +93,42 @@ memory allows and keeps 1 GiB aside.
    token per round and no speculation; we measure about 4.85 with DFlash2 5 drafts on English.
 3. The request log line `mixed speculation accepted 406/572 (71.0%)` appears once speculation is
    running.
+
+## PowerShell variant
+
+PowerShell does not use `^` for line continuation, and it will not run an executable from the
+current directory unless you prefix it with `.\`. Single line form (paste as is):
+
+```powershell
+.
+infer-serve.exe D:\models\Ternary-Bonsai-2-27B-ninfer-v3.ninfer --port 8299 --host 127.0.0.1 --model-id bonsai2-27b --device 0 --max-context 32768 --kv-capacity 32768 --kv-dtype rk4v4 --fast-prefill-kernel --prefill-chunk 2048 --max-concurrency 1 --host-kv-mib 4096 --host-state-slots 8 --device-state-slots 2 --spec mtp --draft-tokens 3 --lm-head-draft --adaptive-mtp --ngram-draft-tokens 15 --ngram-min-match 8 --default-thinking-budget 4096 --default-reasoning-effort low --preserve-thinking --temperature 0.6 --top-p 0.95 --top-k 20 --min-p 0 --log-level info
+```
+
+Multi line form uses a backtick as the last character of each continued line:
+
+```powershell
+.
+infer-serve.exe D:\models\Ternary-Bonsai-2-27B-ninfer-v3.ninfer `
+  --port 8299 --host 127.0.0.1 --model-id bonsai2-27b `
+  --device 0 `
+  --max-context 32768 --kv-capacity 32768 `
+  --kv-dtype rk4v4 `
+  --fast-prefill-kernel --prefill-chunk 2048 `
+  --max-concurrency 1 `
+  --host-kv-mib 4096 --host-state-slots 8 --device-state-slots 2 `
+  --spec mtp --draft-tokens 3 --lm-head-draft --adaptive-mtp `
+  --ngram-draft-tokens 15 --ngram-min-match 8 `
+  --default-thinking-budget 4096 --default-reasoning-effort low --preserve-thinking `
+  --temperature 0.6 --top-p 0.95 --top-k 20 --min-p 0 `
+  --log-level info
+```
+
+In `cmd.exe` use `^` as the last character instead, and no `.\` prefix is needed.
+
+### Note on --kv-capacity
+
+Builds made from the damaged `serve_options.cpp` (including the first 0.1.0 archive) drop the
+`kv_capacity_explicit` guard, so an explicit `--kv-capacity` is overwritten by the derived default
+and `--kv-headroom-mib` then fails with `--kv-headroom-mib requires --kv-capacity auto`. On such a
+build, pass a number instead of `auto` and omit `--kv-headroom-mib` (equivalently, size the pool
+yourself). The fixed parser in `patches/` restores the guard.
