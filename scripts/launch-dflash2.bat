@@ -1,0 +1,15 @@
+@echo off
+chcp 65001 >nul
+REM DFlash2 5 drafts: expected high per-round cost under the server, see docs/03
+REM Edit the engine and model paths below, then run this file.
+
+set "ENGINE=D:\ninfer-all\build\apps\ninfer-serve.exe"
+set "ARTIFACT=D:\models\Ternary-Bonsai-2-27B-ninfer-v3.ninfer"
+"%ENGINE%" "%ARTIFACT%" ^
+  --port 8299 --host 127.0.0.1 --model-id bonsai2-27b --no-thinking ^
+  --max-context 32768 --kv-capacity 32768 --kv-dtype rk4v4 ^
+  --fast-prefill-kernel --prefill-chunk 2048 ^
+  --spec dflash2 --draft-tokens 5 ^
+  --temperature 0.6 --top-p 0.95 --top-k 20 --min-p 0 ^
+  --log-level info
+pause

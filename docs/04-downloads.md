@@ -14,17 +14,17 @@ certutil -hashfile ninfer-serve-sm86-v0.1.0.zip SHA256
 On Linux or macOS: `cat ninfer-serve-sm86-v0.1.0.zip.0* > ninfer-serve-sm86-v0.1.0.zip`
 
 The merged file is 812 MB. Expected SHA256:
-`c3cdb5687cf04a36053c6d0709969d7f81bc95297339eefe0499dd20d925ad93`
+`a905306cfe9ed9bef7e986fefcb531c875c12d1bed5447726ee79517491072e1`
 
 Per-part SHA256 (from our local build):
 
 ```
-df7b5cf0018e... ninfer-serve-sm86-v0.1.0.zip.000
-2b2a0b49dc70... ninfer-serve-sm86-v0.1.0.zip.001
-9a1bc8938cad... ninfer-serve-sm86-v0.1.0.zip.002
-88d75ec7d243... ninfer-serve-sm86-v0.1.0.zip.003
-6e9daac41257... ninfer-serve-sm86-v0.1.0.zip.004
-2548a4462d8b... ninfer-serve-sm86-v0.1.0.zip.005
+e166834a2507... ninfer-serve-sm86-v0.1.0.zip.000
+5a75f168c751... ninfer-serve-sm86-v0.1.0.zip.001
+ccec883fc6fc... ninfer-serve-sm86-v0.1.0.zip.002
+f6a6f8086727... ninfer-serve-sm86-v0.1.0.zip.003
+5635134bef3c... ninfer-serve-sm86-v0.1.0.zip.004
+d57c62fee67e... ninfer-serve-sm86-v0.1.0.zip.005
 ```
 
 Full values are in `parts_sha256.txt` inside our working tree; after merging, the file level
@@ -32,8 +32,7 @@ checksum above is the one that matters.
 
 Package contents: `ninfer-serve.exe` (ninfer-all plus the parser fix, sm_86), the ffmpeg and curl
 runtime libraries, launcher scripts, upstream LICENSE and NOTICE, and an inner `SHA256SUMS.txt`.
-The bundled launcher scripts have Chinese file names and comments; the command lines inside are
-what matter.
+The bundled launcher scripts are named `launch-mtp-english.bat`, `launch-mtp-chinese.bat`, `launch-mtp-general.bat` and `launch-dflash2.bat`.
 
 Runtime requirements:
 
@@ -83,7 +82,7 @@ engines.
 
 ```bat
 certutil -hashfile ninfer-serve-sm86-v0.1.0.zip SHA256
-:: expect c3cdb5687cf04a36053c6d0709969d7f81bc95297339eefe0499dd20d925ad93
+:: expect a905306cfe9ed9bef7e986fefcb531c875c12d1bed5447726ee79517491072e1
 
 certutil -hashfile Ternary-Bonsai-2-27B-ninfer-v3.ninfer SHA256
 :: expect cdc4810b0ff17c40d0f62cf214b6e0bcd08346e9eb05ca53371507037793c14a
