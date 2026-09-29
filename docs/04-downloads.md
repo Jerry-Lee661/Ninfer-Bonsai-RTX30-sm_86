@@ -2,7 +2,7 @@
 
 ## 1. Prebuilt package (no build required)
 
-Six parts attached to the
+Six parts (rebuilt 2026-09-29 23:0x with the parser fix, the kv-capacity guard and the full DLL closure) attached to the
 [v0.1.0 release](https://github.com/Jerry-Lee661/Ninfer-Bonsai-RTX30-sm_86/releases/tag/v0.1.0),
 812 MB in total. Download all six and merge them:
 
@@ -14,17 +14,17 @@ certutil -hashfile ninfer-serve-sm86-v0.1.0.zip SHA256
 On Linux or macOS: `cat ninfer-serve-sm86-v0.1.0.zip.0* > ninfer-serve-sm86-v0.1.0.zip`
 
 The merged file is 812 MB. Expected SHA256:
-`704560911e5feedd20c2dd70ce12c352691325da9d0fce070ee7bd570b7b0416`
+`c3cdb5687cf04a36053c6d0709969d7f81bc95297339eefe0499dd20d925ad93`
 
 Per-part SHA256 (from our local build):
 
 ```
-6347665c5b6b... ninfer-serve-sm86-v0.1.0.zip.000
-3af6b8feef51... ninfer-serve-sm86-v0.1.0.zip.001
-ff0aa8e5e27c... ninfer-serve-sm86-v0.1.0.zip.002
-4ba68532e71b... ninfer-serve-sm86-v0.1.0.zip.003
-a0b75de88432... ninfer-serve-sm86-v0.1.0.zip.004
-0fd6a60ef5f0... ninfer-serve-sm86-v0.1.0.zip.005
+df7b5cf0018e... ninfer-serve-sm86-v0.1.0.zip.000
+2b2a0b49dc70... ninfer-serve-sm86-v0.1.0.zip.001
+9a1bc8938cad... ninfer-serve-sm86-v0.1.0.zip.002
+88d75ec7d243... ninfer-serve-sm86-v0.1.0.zip.003
+6e9daac41257... ninfer-serve-sm86-v0.1.0.zip.004
+2548a4462d8b... ninfer-serve-sm86-v0.1.0.zip.005
 ```
 
 Full values are in `parts_sha256.txt` inside our working tree; after merging, the file level
@@ -83,7 +83,7 @@ engines.
 
 ```bat
 certutil -hashfile ninfer-serve-sm86-v0.1.0.zip SHA256
-:: expect 704560911e5feedd20c2dd70ce12c352691325da9d0fce070ee7bd570b7b0416
+:: expect c3cdb5687cf04a36053c6d0709969d7f81bc95297339eefe0499dd20d925ad93
 
 certutil -hashfile Ternary-Bonsai-2-27B-ninfer-v3.ninfer SHA256
 :: expect cdc4810b0ff17c40d0f62cf214b6e0bcd08346e9eb05ca53371507037793c14a

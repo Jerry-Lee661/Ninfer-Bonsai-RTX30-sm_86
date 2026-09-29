@@ -31,6 +31,17 @@ no-spec level. This release carries the fix and the measurements taken on an RTX
 DFlash2 has an unusually high per-round cost under the server (about 233 t/s on the command line
 against 65.8 t/s under the server). MTP avoids it; details in `docs/03-known-issues.md`.
 
+## Second rebuild of the archive (2026-09-29 23:0x)
+
+- Fixed a second defect in the same file: the derived KV sizing overwrote an explicit
+  `--kv-capacity`, so `--kv-capacity auto --kv-headroom-mib N` failed with
+  `--kv-headroom-mib requires --kv-capacity auto`. The guard is restored in `patches/serve_options.cpp`.
+- The archive now ships the complete DLL closure (`swresample-7.dll` was missing, a dependency of
+  `avformat-63.dll`).
+- Rebuild hint for packagers: the generated `device_profiles_builtin.cpp` exceeds MSVC's 16380 byte
+  string literal limit, so the JSON is now emitted as adjacent raw string chunks by
+  `src/runtime/CMakeLists.txt`.
+
 ## Attachments
 
 Six parts forming a single 812 MB archive:
@@ -40,7 +51,7 @@ copy /b ninfer-serve-sm86-v0.1.0.zip.000+ninfer-serve-sm86-v0.1.0.zip.001+ninfer
 ```
 
 Merged archive SHA256:
-`704560911e5feedd20c2dd70ce12c352691325da9d0fce070ee7bd570b7b0416`
+`c3cdb5687cf04a36053c6d0709969d7f81bc95297339eefe0499dd20d925ad93`
 
 The model is not attached (9.52 GB). Links and checksums are in `docs/04-downloads.md`.
 
