@@ -14,7 +14,7 @@ certutil -hashfile ninfer-serve-sm86-v0.1.0.zip SHA256
 On Linux or macOS: `cat ninfer-serve-sm86-v0.1.0.zip.0* > ninfer-serve-sm86-v0.1.0.zip`
 
 The merged file is 812 MB. Expected SHA256:
-`717612c2ff0789b224ce6617b17306d9c778164be598bfda0f18819c05803c87`
+`704560911e5feedd20c2dd70ce12c352691325da9d0fce070ee7bd570b7b0416`
 
 Per-part SHA256 (from our local build):
 
@@ -24,7 +24,7 @@ Per-part SHA256 (from our local build):
 ff0aa8e5e27c... ninfer-serve-sm86-v0.1.0.zip.002
 4ba68532e71b... ninfer-serve-sm86-v0.1.0.zip.003
 a0b75de88432... ninfer-serve-sm86-v0.1.0.zip.004
-c40204a1fcfd... ninfer-serve-sm86-v0.1.0.zip.005
+0fd6a60ef5f0... ninfer-serve-sm86-v0.1.0.zip.005
 ```
 
 Full values are in `parts_sha256.txt` inside our working tree; after merging, the file level
@@ -83,7 +83,7 @@ engines.
 
 ```bat
 certutil -hashfile ninfer-serve-sm86-v0.1.0.zip SHA256
-:: expect 717612c2ff0789b224ce6617b17306d9c778164be598bfda0f18819c05803c87
+:: expect 704560911e5feedd20c2dd70ce12c352691325da9d0fce070ee7bd570b7b0416
 
 certutil -hashfile Ternary-Bonsai-2-27B-ninfer-v3.ninfer SHA256
 :: expect cdc4810b0ff17c40d0f62cf214b6e0bcd08346e9eb05ca53371507037793c14a

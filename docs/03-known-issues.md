@@ -63,3 +63,12 @@ There is no padding to remove. The binary has no debug symbol table, only one ar
 cubins throughout), and PTX makes up a negligible share (extracted SASS totals 1231 MB against a
 1195 MB `.nv_fatbin`). If you only need text inference and not vision or video, you can rebuild
 with `-DNINFER_DISABLE_MEDIA=ON` and save about 141 MB of runtime libraries.
+
+## 7. Packaging note: the runtime DLL set is a transitive closure
+
+The first build of the 0.1.0 archive shipped only the DLLs that `ninfer-serve.exe` imports
+directly, which missed `swresample-7.dll` (a dependency of `avformat-63.dll`). The archive has
+been rebuilt with the full closure, so just download the current files. If you assemble a package
+yourself, walk the import tables of every DLL as well, not only the executable's. The closure that
+matters is: `avcodec-63`, `avformat-63`, `avutil-61`, `swresample-7`, `swscale-10`, `libcurl`.
+`avdevice-63` and `avfilter-12` are not needed.

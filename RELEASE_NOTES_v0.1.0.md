@@ -40,7 +40,7 @@ copy /b ninfer-serve-sm86-v0.1.0.zip.000+ninfer-serve-sm86-v0.1.0.zip.001+ninfer
 ```
 
 Merged archive SHA256:
-`717612c2ff0789b224ce6617b17306d9c778164be598bfda0f18819c05803c87`
+`704560911e5feedd20c2dd70ce12c352691325da9d0fce070ee7bd570b7b0416`
 
 The model is not attached (9.52 GB). Links and checksums are in `docs/04-downloads.md`.
 
