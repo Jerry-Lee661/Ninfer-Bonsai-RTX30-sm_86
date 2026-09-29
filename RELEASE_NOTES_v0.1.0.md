@@ -27,3 +27,9 @@
 
 DFlash2 在 serve 路径的每轮开销异常偏高（命令行界面 233 t/s，serve 65.8 t/s），投机用 MTP
 即可绕过；详见 `docs/03-已知问题.md`。
+
+## 附件
+
+- `ninfer-serve-sm86-v0.1.0.zip`（1369 MB）：预编译 ninfer-serve（sm_86）+ 运行库 + 起服脚本 + 校验和。
+  SHA256 `b595ae8e46449813bc2b120fd10227e924fe35769b56dfda2496a2eef464c983`
+- 模型不在附件内（9.52 GB），地址与校验见 `docs/04-下载与校验.md`。

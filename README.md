@@ -30,6 +30,15 @@
 [patches/README.md](patches/README.md)。**如果你的 ninfer-serve 加了 `--spec` 却看不到任何
 投机统计，基本就是这个坑。**
 
+## 下载
+
+- **预编译包**：`ninfer-serve-sm86-v0.1.0.zip`（1369 MB，免构建，见 Releases）
+  SHA256 `b595ae8e46449813bc2b120fd10227e924fe35769b56dfda2496a2eef464c983`
+- **模型工件**（ninfer 专用，9.52 GB）：
+  镜像 `https://hf-mirror.com/WaveCut/Ternary-Bonsai-2-27B-NInfer-v3/resolve/main/Ternary-Bonsai-2-27B-ninfer-v3.ninfer`
+  SHA256 `cdc4810b0ff17c40d0f62cf214b6e0bcd08346e9eb05ca53371507037793c14a`
+- 全部地址、校验方法与运行环境要求见 [docs/04-下载与校验.md](docs/04-下载与校验.md)。
+
 ## 快速开始
 
 ### 0. 准备
