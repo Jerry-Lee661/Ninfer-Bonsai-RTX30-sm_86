@@ -57,3 +57,25 @@ The model is not attached (9.52 GB). Links and checksums are in `docs/04-downloa
 
 Note: the launcher scripts bundled in the archive have Chinese file names and comments. The
 command lines inside are plain flags and work regardless of locale.
+
+## Why the package is larger than other NInfer distributions
+
+We compared the package against Don-Chad/ninfer-3090 v0.6.1-rtx3090 for Windows (545 MB):
+
+| Item | This package (ninfer-all merged line plus ternary port) | Don-Chad v0.6.1-rtx3090 |
+|---|---|---|
+| Main binary | ninfer-serve.exe 1228 MB | ninfer-serve.exe 184 MB |
+| Embedded GPU code | **276 cubins, 14165 kernels**, about 1.2 GB of SASS (`.nv_fatbin`) | `.nv_fatbin` 63 MB plus `__nv_relfatbin` 114 MB |
+| Ternary (t2) kernels | Present (`t2_small_t`, `t2_rowsplit`, `t2_g128_fp16`) | **None**, so it cannot run Bonsai ternary artifacts |
+| DFlash2, ngram, disk KV | Present | Absent |
+| ffmpeg runtime | Self-built 63 series with all codecs, 141 MB | Lean 62 series, 19 MB |
+
+The size follows from the feature surface: running a ternary model requires the whole ternary
+kernel family compiled in, plus everything the merged line carries (media and vision, MoE, all
+quant families, DFlash2 and so on). The v0.6.1 line targets Qwen3.8 W8/INT8/nvfp4 artifacts, which
+is a much smaller kernel set.
+
+There is no padding to remove. The binary has no debug symbol table, only one architecture (sm_86
+cubins throughout), and PTX makes up a negligible share (extracted SASS totals 1231 MB against a
+1195 MB `.nv_fatbin`). If you only need text inference and not vision or video, you can rebuild
+with `-DNINFER_DISABLE_MEDIA=ON` and save about 141 MB of runtime libraries.
