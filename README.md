@@ -32,8 +32,8 @@
 
 ## 下载
 
-- **预编译包**：`ninfer-serve-sm86-v0.1.0.zip`（1369 MB，免构建，见 Releases）
-  SHA256 `3c7d4c8ef9cd6ecfd5fb5bd9e048c0bfa7871e7ef1ea6d2cd90a0c1c7c636878`
+- **预编译包**：`ninfer-serve-sm86-v0.1.0.zip`（812 MB，免构建，见 Releases）
+  SHA256 `717612c2ff0789b224ce6617b17306d9c778164be598bfda0f18819c05803c87`
 - **模型工件**（ninfer 专用，9.52 GB）：
   镜像 `https://hf-mirror.com/WaveCut/Ternary-Bonsai-2-27B-NInfer-v3/resolve/main/Ternary-Bonsai-2-27B-ninfer-v3.ninfer`
   SHA256 `cdc4810b0ff17c40d0f62cf214b6e0bcd08346e9eb05ca53371507037793c14a`
