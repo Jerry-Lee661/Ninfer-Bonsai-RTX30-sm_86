@@ -66,23 +66,34 @@ Notes on the choices above:
 
 ## Sizing context on a 12 GB card
 
-The Bonsai-2-27B text configuration has 64 layers of which 16 are full attention, 4 key/value
-heads and a head dimension of 256. That is 32,768 elements per token of KV, so:
+Measured on a 12 GB card with this artifact (weights 7.28 GiB with MTP and the proposal head):
 
-| KV type | Bytes per token | 32K tokens | 131K tokens |
+| KV pool | Type | Runtime | Notes |
 |---|---|---|---|
-| bf16 | 64 KB | 2.1 GB | 8.6 GB |
-| int8 / fp8 | 32 KB | 1.1 GB | 4.3 GB |
-| rk4v4 | 16 KB | 0.5 GB | 2.1 GB |
+| 8,192 tokens | bf16 | 997 MiB | default, fastest per token |
+| 32,768 tokens | rk4v4 | 1.98 GiB | measured, `free 1.87 GiB` after load |
 
-Weights take 7.99 GiB including the speculative heads. On a 12 GB card with bf16 KV, 32K context
-fits comfortably and 131K does not. With rk4v4, 131K is arithmetically possible but leaves very
-little headroom, so keep the overflow in the pinned host tier (`--host-kv-mib 4096`) and expect
-decode to drop as the context grows. The upstream reference points behave the same way: 86.9 t/s
-at 8K against 35.0 t/s at 191K on a 24 GB card.
+That works out to roughly 122 KB per token at bf16 and 63 KB per token at rk4v4, which is about
+twice the raw attention KV (16 full-attention layers, 4 key/value heads, head dimension 256), so
+the pool also carries the draft head and the state overheads. Extrapolating:
 
-`--kv-capacity auto --kv-headroom-mib 1024` is the safe way to size the pool: it takes what free
-memory allows and keeps 1 GiB aside.
+| Context | rk4v4 pool | Total with weights and runtime |
+|---|---|---|
+| 32,768 | 2.0 GiB | about 10 GiB, fits |
+| 65,536 | 3.9 GiB | about 11.9 GiB, at the edge |
+| 131,072 | 7.9 GiB | about 15.9 GiB, does not fit on 12 GB |
+
+Two rules follow:
+
+1. **`--kv-capacity` must be at least `--max-context`** (`--kv-capacity must be at least
+   --max-context`). The device pool holds the active window, so a smaller pool caps the usable
+   context rather than spilling an active request to the host.
+2. On 12 GB, 32K at rk4v4 is the comfortable point. If you need more, lower the KV width further
+   (`--kv-dtype rk2v4-e8`, 2 bits) or use a larger card. `--kv-capacity auto` sizes the pool from
+   free memory, which avoids an out-of-memory failure but does not make a longer context fit.
+
+`--host-kv-mib` sizes the pinned host tier, which holds checkpointed and evicted KV between turns;
+it is not a spill path for the active window.
 
 ## Verify that the flags are live
 
