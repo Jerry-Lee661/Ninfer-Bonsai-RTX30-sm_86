@@ -87,3 +87,26 @@ scripts\build_serve.bat
 本仓文档与脚本：Apache-2.0（与上游一致）。引擎源码版权归上游作者，详见
 [ATTRIBUTION.md](ATTRIBUTION.md)。模型权重版权归其发布方（Prism ML / WaveCut 等），本仓不
 分发权重，仅提供获取路径。
+
+## 预编译包下载（分卷，公网链路较慢时更稳）
+
+Release 附件是 6 个分卷（共 812 MB），下载后合并再校验：
+
+```bat
+copy /b ninfer-serve-sm86-v0.1.0.zip.000+ninfer-serve-sm86-v0.1.0.zip.001+ninfer-serve-sm86-v0.1.0.zip.002+ninfer-serve-sm86-v0.1.0.zip.003+ninfer-serve-sm86-v0.1.0.zip.004+ninfer-serve-sm86-v0.1.0.zip.005 ninfer-serve-sm86-v0.1.0.zip
+certutil -hashfile ninfer-serve-sm86-v0.1.0.zip SHA256
+```
+（Linux/macOS：`cat ninfer-serve-sm86-v0.1.0.zip.0* > ninfer-serve-sm86-v0.1.0.zip`）
+
+合并后大小 812 MB，SHA256 应为 `717612c2ff0789b224ce6617b17306d9c778164be598bfda0f18819c05803c87`。
+
+单卷校验和：
+
+```
+6347665c5b6bfef49cc0f105ad29f5a48035391446f2b6e976f3207393d64bc1 *ninfer-serve-sm86-v0.1.0.zip.000
+3af6b8feef5177c2c885dc6b7214f7659e57aabf334c35300f1b93c6b24631ad *ninfer-serve-sm86-v0.1.0.zip.001
+ff0aa8e5e27c81bdf89332be849babdb22686d0574797ad76b7c6af7e0235f9b *ninfer-serve-sm86-v0.1.0.zip.002
+4ba68532e71bab2cd20982918150b7956f2064fa5ed5f1e9f924d1847c05f3a2 *ninfer-serve-sm86-v0.1.0.zip.003
+a0b75de88432a9516f621819cd3b69c9e44eff1b406ff048ace40a23c3e77cfb *ninfer-serve-sm86-v0.1.0.zip.004
+c40204a1fcfd5748af8973d78e9e70ffe64af38622386b4f41273884c43a0a00 *ninfer-serve-sm86-v0.1.0.zip.005
+```
