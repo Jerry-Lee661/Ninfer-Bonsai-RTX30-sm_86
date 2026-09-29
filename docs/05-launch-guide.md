@@ -91,6 +91,10 @@ Two rules follow:
 2. On 12 GB, 32K at rk4v4 is the comfortable point. If you need more, lower the KV width further
    (`--kv-dtype rk2v4-e8`, 2 bits) or use a larger card. `--kv-capacity auto` sizes the pool from
    free memory, which avoids an out-of-memory failure but does not make a longer context fit.
+3. Verified: with `--kv-headroom-mib 512` the 65,536-token configuration starts and serves
+   (`KV 65,536 tokens, rk4v4, auto | runtime 2.56 GiB | free 694.6 MiB`). At the default 1 GiB
+   headroom the same configuration fails the startup reservation check, so lower the headroom
+   when you raise the context.
 
 `--host-kv-mib` sizes the pinned host tier, which holds checkpointed and evicted KV between turns;
 it is not a spill path for the active window.
