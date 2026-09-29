@@ -1,22 +1,31 @@
-# 可选：上游 t2_v2 小 T 内核移植件（自有三元引擎线）
+# Optional: upstream t2_v2 small-T kernels ported to the self-hosted ternary engine
 
-本目录的 `ternary_t2v2.cuh` 是把 ninfer-all 的 `src/ops/linear/t2/t2_small_t_v2.cuh`（小 T
-张量核内核）移植到自有 ternary86 引擎（PTQ1/PQ2 行拼接线）的版本，用于 T=2 到 8 的解码与验证。
+`ternary_t2v2.cuh` in this directory ports `src/ops/linear/t2/t2_small_t_v2.cuh` from ninfer-all
+(the small-T tensor core kernel) to the self-hosted ternary86 engine (PTQ1/PQ2 row-split line),
+for decode and verification at T = 2 to 8.
 
-移植要点（其余逐行照搬上游）：
+What changed compared to upstream (everything else is copied verbatim):
 
-1. **LUT 表换成本线码约定**：上游 t2 码是补码式（字段 1 表示 +1，3 表示 -1），本线 PQ2 码是
-   偏置式 `c = w + 1`。用 numpy 精确仿真 `__byte_perm` 解出并验证了本线的表：
-   `kLutLow = 0x00800080`，`kLutHigh = 0x003F00BF`。
-2. 存储常量改用本线的 `PQ2RowSplitStorage`（数值与上游一致：组 128、32B 码、2B scale）。
-3. 派发加形状守卫：`tokens <= 8 && rows % 16 == 0 && k % 512 == 0`，否则回退原几何。
+1. **LUT tables follow this line's code convention.** Upstream t2 codes are two's complement
+   style (field 1 means +1, field 3 means -1); this line's PQ2 codes are biased, `c = w + 1`. The
+   tables were derived with a numpy emulation of `__byte_perm` and verified:
+   `kLutLow = 0x00800080`, `kLutHigh = 0x003F00BF`.
+2. Storage constants use this line's `PQ2RowSplitStorage` (same values as upstream: group 128,
+   32 B codes, 2 B scale).
+3. The dispatch adds a shape guard: `tokens <= 8 && rows % 16 == 0 && k % 512 == 0`, otherwise it
+   falls back to the previous geometry.
 
-验证（本线实测，PQ2 工件）：
+Verification (this line, PQ2 artifact):
 
-- 冒烟输出逐字相同，easy 负载逐位一致，hard/chat 为 K 归约顺序变化导致的良性分歧；
-- PPL 512/256 协议两条路径**全位相同**（1.125169058908091）；
-- 中文三负载 82.0/82.6/72.8 提升到 126.2/127.7/106.2（+46% 到 +55%）；
-- 英文与代码 81.6/81.5 提升到 126.8/127.5；MTP 3 与 5 drafts 深度同样受益。
+- Smoke output identical word for word; the easy workload bit-identical; hard and chat differ only
+  through a different K reduction order, so the drift is benign.
+- Perplexity at the 512/256 protocol: **bit-identical** between both paths
+  (1.125169058908091).
+- Chinese workloads move from 82.0, 82.6 and 72.8 t/s to 126.2, 127.7 and 106.2 t/s (+46 to +55
+  percent).
+- English and code move from 81.6 and 81.5 t/s to 126.8 and 127.5 t/s. MTP with 3 and 5 drafts
+  benefits the same way.
 
-上游设计要点：激活从全局内存经 L1 直读（不落 shared、不用 ldmatrix）、PRMT 双寄存器表解码、
-8 个 warp 按 KWarps 切 K、codes 与 scales 以 stage 环 cp.async 预取。
+Upstream design points worth noting: activations are read straight from global memory through L1
+(no shared tile, no ldmatrix), the A fragment comes from a two-register PRMT table, eight warps
+split K by KWarps, and codes plus scales are prefetched with cp.async in a stage ring.

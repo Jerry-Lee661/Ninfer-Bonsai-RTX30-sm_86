@@ -1,17 +1,18 @@
-# serve_options.cpp 解析器修复
+# serve_options.cpp parser fix
 
-## 症状
+## Symptoms
 
-- `ninfer-serve` 加了 `--spec dflash2 --draft-tokens 5`，日志里**没有任何投机统计**，吞吐与
-  不加 `--spec` 完全相同。
-- 用非法值试探也**不报错**：`ninfer-serve.exe <artifact> --spec banana` 能正常起服。
-- 只有命令行里**第一个**旗标起作用：例如把 `--kv-dtype rk4v4` 放在最前时确实生效，放在后面的
-  `--spec`、`--max-context` 等则全部被忽略。
+- `ninfer-serve` is started with `--spec dflash2 --draft-tokens 5` and the log shows **no
+  speculation statistics at all**; throughput is identical to running without `--spec`.
+- Even a bogus value is accepted: `ninfer-serve.exe <artifact> --spec banana` starts normally.
+- Only the **first** command line flag has any effect. Put `--kv-dtype rk4v4` first and it applies;
+  put `--spec`, `--max-context` and the rest after it and they are all ignored.
 
-## 机制
+## Mechanism
 
-`src/serve/serve_options.cpp` 的参数解析循环被改坏：整条 123 分支的旗标解析链被包进了
-`for (int i = 2; i < argc; ++i)` 的循环体内，而 `return options;` 也留在循环体里：
+The argument parsing loop in `src/serve/serve_options.cpp` is damaged: the whole chain of 123 flag
+branches sits inside the `for (int i = 2; i < argc; ++i)` body, and `return options;` never leaves
+the loop:
 
 ```cpp
 for (int i = 2; i < argc; ++i) {
@@ -19,49 +20,53 @@ for (int i = 2; i < argc; ++i) {
     ...
     if (arg == "--host")      { ... }
     if (arg == "--port")      { ... }
-    ...                        // 全部 123 个分支
+    ...                        // all 123 branches
     if (arg == "--spec")      { options.speculative.backend = parse_speculative_backend(...); }
     ...
-    return options;            // <== 留在循环里，处理完 argv[2] 就返回
+    return options;            // stays inside the loop, so argv[2] is the only flag parsed
 }
 ```
 
-结果：函数只解析第一个参数就返回，其余旗标全部丢弃。这个改动来自一次「MSVC C1061 编译器限制」
-的规避：把 `else if` 链摊平成独立 `if` 是正确方向（原版链在 MSVC 上确实报 C1061），但摊平时
-花括号错位，且从未做过行为验证。
+The function therefore returns after the first argument and silently discards the rest. The
+damage came from an attempt to work around MSVC C1061 (blocks nested too deeply): flattening the
+`else if` chain into independent `if` statements is the correct direction (the original chain
+really does hit C1061), but the braces were misplaced and the result was never verified at run
+time.
 
-## 修复
+## Fix
 
-保留摊平风格（MSVC 友好），把 `for` 循环的闭合括号移到整条解析链之后，让 KV 容量推导、
-参数校验与 `return` 回到函数层。净花括号数不变。
+Keep the flattened style (MSVC friendly) and move the `for` loop closing brace to after the whole
+parsing chain, so the KV capacity derivation, the option validation and `return` sit at function
+level again. The net brace count is unchanged.
 
-修复后的 `serve_options.cpp` 已放在本目录，直接覆盖同名文件即可（对应
-`iamwavecut/ninfer-all` master 的 2026-09 修订；若上游已更新，请按同样原则检查
-「循环闭合位置」与「return 位置」）。
+The fixed `serve_options.cpp` in this directory is a drop-in replacement for the
+`iamwavecut/ninfer-all` master revision of September 2026. If upstream has moved on, check the same
+two things: where the loop closes, and where `return` sits.
 
-## 验证（建议照做）
+## Verification (worth repeating after any rebuild)
 
 ```bat
-:: 1) 非法值必须报错
+:: 1) A bogus value must be rejected
 ninfer-serve.exe <artifact> --spec banana
-::    期望：ninfer-serve: invalid speculative backend: banana
+::    expect: ninfer-serve: invalid speculative backend: banana
 
-:: 2) 投机组件必须加载（有 drafter 时体积变大）
+:: 2) The speculative components must load (the load size grows)
 ninfer-serve.exe <artifact> --spec mtp --draft-tokens 3 --host 127.0.0.1
-::    期望日志：loading weights | 7.99 GiB（无投机时为 6.70 GiB）
+::    expect the log to say: loading weights | 7.99 GiB  (6.70 GiB without speculation)
 
-:: 3) 请求后查轮数比（判定投机是否真的在跑）
-::    起服后发一个请求，再 GET http://127.0.0.1:<port>/stats
-::    期望 counters.decode_rounds 明显小于 committed_decode_tokens（实测 4.85 比 1）
+:: 3) Check that speculation actually runs
+::    After one request, GET http://127.0.0.1:<port>/stats
+::    expect counters.decode_rounds to be clearly below committed_decode_tokens
+::    (we measure 4.85 tokens per round, against 1.0)
 ```
 
-## 我们的实测（修复前后）
+## Measured before and after
 
-| 项 | 修复前 | 修复后 |
+| Item | Before fix | After fix |
 |---|---|---|
-| 引擎解析到的投机后端 | None | MTP / DFlash2 |
-| 权重加载 | 6.70 GiB | 7.99 GiB（含 drafter） |
-| 请求日志 | 无投机统计 | `mtp accepted 110/287 (38.3%)` 等 |
-| decode_rounds / tokens | 1.00 | 4.85 |
-| 中文 256 token 吞吐 | ~74 t/s | **103.8 t/s**（MTP 2 drafts） |
-| 英文 512 token 吞吐 | 73.8 t/s | **198.8 t/s**（MTP 5 drafts） |
+| Speculative backend seen by the engine | None | MTP or DFlash2 |
+| Weight load | 6.70 GiB | 7.99 GiB (drafter included) |
+| Request log | no speculation statistics | `mtp accepted 110/287 (38.3%)` and similar |
+| decode_rounds over tokens | 1.00 | 4.85 |
+| Chinese, 256 tokens | about 74 t/s | **103.8 t/s** (MTP 2 drafts) |
+| English, 512 tokens | 73.8 t/s | **198.8 t/s** (MTP 5 drafts) |

@@ -1,34 +1,41 @@
-# 上游引用与致谢
+# Upstream credit
 
-本仓是部署工程，不包含引擎源码。引擎与模型的版权归各自作者，引用如下。
+This repository is a deployment project and does not contain engine source code. Engine and model
+rights belong to their respective authors.
 
-## 引擎（Apache-2.0）
+## Engine (Apache-2.0)
 
-- [iamwavecut/ninfer-all](https://github.com/iamwavecut/ninfer-all)：本仓使用的引擎主体，sm_86/89/120a。
-  该仓自述：自 [Don-Chad/ninfer-3090](https://github.com/Don-Chad/ninfer-3090) 起步（后者源自
-  Neroued 的 NInfer），并合入
-  [TertiumOrganum1/ninfer-3090](https://github.com/TertiumOrganum1/ninfer-3090) 的补丁、
-  [UDPSendToFailed/ninfer-4090](https://github.com/UDPSendToFailed/ninfer-4090) 的思路，以及
-  [IMGillusion](https://github.com/IMGillusion/ninfer-disk-kv)、
-  [Mirko Covizzi](https://github.com/MirkoCovizzi/ninfer-rtx5090-mobile)、
-  Ian Ranson（[Wallawalla47](https://github.com/Wallawalla47/ninfer-custom)）、
-  tmark00、David Oelfke（[gzenz/ninfer](https://github.com/gzenz/ninfer)）等人的工作。
-- 上游源头：[Neroued/ninfer](https://github.com/Neroued/ninfer)。
+- [iamwavecut/ninfer-all](https://github.com/iamwavecut/ninfer-all): the engine used here, covering
+  sm_86, sm_89 and sm_120a. Its own README credits
+  [Don-Chad/ninfer-3090](https://github.com/Don-Chad/ninfer-3090) as the starting point (itself
+  derived from Neroued's NInfer), patches from
+  [TertiumOrganum1/ninfer-3090](https://github.com/TertiumOrganum1/ninfer-3090), ideas from
+  [UDPSendToFailed/ninfer-4090](https://github.com/UDPSendToFailed/ninfer-4090) and its
+  contributors, and work by [IMGillusion](https://github.com/IMGillusion/ninfer-disk-kv),
+  [Mirko Covizzi](https://github.com/MirkoCovizzi/ninfer-rtx5090-mobile), Ian Ranson
+  ([Wallawalla47](https://github.com/Wallawalla47/ninfer-custom)), tmark00 and David Oelfke
+  ([gzenz/ninfer](https://github.com/gzenz/ninfer)).
+- Upstream origin: [Neroued/ninfer](https://github.com/Neroued/ninfer).
 
-## 模型与工件
+## Models and artifacts
 
-- Prism ML：`Ternary-Bonsai-2-27B` 系列三元量化（PTQ1_0 / PQ2_0_G128 两种打包档位）。
-- [WaveCut/Ternary-Bonsai-2-27B-NInfer-v3](https://huggingface.co/WaveCut/Ternary-Bonsai-2-27B-NInfer-v3)：
-  本仓使用的 v3 工件（含 DFlash2 drafter、MTP 头、proposal head、视觉塔）。权重版权归其发布方，
-  本仓不分发权重。
-- DFlash2 drafter 权重来源：ProCreations 的相关发布（工程内记为 pc-dflash2）。
+- Prism ML: the `Ternary-Bonsai-2-27B` ternary quantization family (PTQ1_0 and PQ2_0_G128 packing
+  tiers).
+- [WaveCut/Ternary-Bonsai-2-27B-NInfer-v3](https://huggingface.co/WaveCut/Ternary-Bonsai-2-27B-NInfer-v3):
+  the v3 artifact used here, including the DFlash2 drafter, MTP head, proposal head and vision
+  tower. Weights belong to their publishers; this repository does not redistribute them.
+- DFlash2 drafter weights: ProCreations releases (recorded as `pc-dflash2` in the artifact
+  provenance).
 
-## 部署方法与数据参考
+## Deployment references
 
-- [paicat1/Bonsai-27B-NInfer](https://github.com/paicat1/Bonsai-27B-NInfer)：RTX 5080 线上的
-  完整部署工程（启动器、档位、报告），本仓的组织方式参考了它。
-- Ninfer+Kvmem 交付包：提供 4080 SUPER 同口径实测（226 t/s 等），本仓用作标尺。
+- [paicat1/Bonsai-27B-NInfer](https://github.com/paicat1/Bonsai-27B-NInfer): a full deployment
+  project for the RTX 5080 line (launcher, tiers, reports). The organization of this repository
+  follows its example.
+- The Ninfer+Kvmem delivery package: source of the same-protocol RTX 4080 SUPER numbers used here
+  as a yardstick.
 
-## 引用的第三方数字
+## Quoted third-party numbers
 
-本仓 `docs/02-性能实测.md` 中的第三方数字均标注来源与口径。引用时请保留来源标注。
+Numbers from third parties in `docs/02-benchmarks.md` carry their source and protocol. Keep the
+attribution when quoting them.
