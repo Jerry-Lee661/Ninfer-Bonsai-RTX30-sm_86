@@ -72,3 +72,30 @@ been rebuilt with the full closure, so just download the current files. If you a
 yourself, walk the import tables of every DLL as well, not only the executable's. The closure that
 matters is: `avcodec-63`, `avformat-63`, `avutil-61`, `swresample-7`, `swscale-10`, `libcurl`.
 `avdevice-63` and `avfilter-12` are not needed.
+
+## 8. Multi-GPU status (dual GPUs)
+
+The engine's official multi-GPU design is **pipeline parallelism**: `--devices A,B` puts one
+pipeline stage per listed device and `--stage-layers A,B` splits the layers between them (not
+tensor parallelism).
+
+On Windows this is gated in code: `src/runtime/engine/engine.cpp` (`initialize_device`) throws
+`multi-GPU execution is supported on Linux only` for mixed device ids inside `#ifdef _WIN32`.
+Repeating one device id (`--devices 0,0`) is allowed and exercises the whole stage path on a
+single card; we verified this path on Windows with the Bonsai ternary artifact
+(`--devices 0,0 --stage-layers 32,32`, 2 stages x 32 layers): startup, KV pool and a full
+256-token Chinese completion all worked.
+
+Path to real dual-GPU on Windows:
+
+1. Remove or relax the `#ifdef _WIN32` gate in `engine.cpp` (one line).
+2. Verify the multi-device path on Windows: cross-device activation transfer between stages
+   (CUDA peer access or staged copies; WDDM scheduling may add latency), per-device allocators
+   and KV pools, CUDA graph interaction with multiple devices.
+3. Both cards must be sm_86 for the single build (no rebuild needed for two Ampere 30-series).
+
+What dual-GPU buys: roughly doubled weight and KV capacity (context length is the real win;
+a 131K-token KV pool at rk4v4 is about 2.1 GB per stage on split layers). Decode throughput
+gains are limited: pipeline decode is bounded by the slowest stage plus the inter-stage
+transfer, so for a 27B model that already fits one 12 GB card, expect little to no speedup.
+Two independent serve instances (one per card) remain the throughput option.
