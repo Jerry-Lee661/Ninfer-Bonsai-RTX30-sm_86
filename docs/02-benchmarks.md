@@ -44,3 +44,28 @@ Read the protocols carefully:
   The gap to that card was mostly software path, not bandwidth (912 against 736 GB/s).
 - Speculative gains are far larger on English and code than on Chinese. That is the applicability
   domain of the speculative heads; pick the draft count per workload.
+
+## Long-context prefill and multi-turn (measured 2026-10-01)
+
+Server: ninfer-serve from this repository, artifact v3, `--max-context 32768 --kv-capacity 32768
+--kv-dtype rk4v4 --fast-prefill-kernel`, MTP 3 drafts, single request, greedy.
+
+### Prefill ladder (cold cache, needle-in-haystack prompts)
+
+| Prompt | TTFT | Prefill rate | Needle found |
+|---|---|---|---|
+| 1,359 tokens | 0.83 s | 1.63k tok/s | yes |
+| 5,384 tokens | 2.3 s | 2.33k tok/s | yes |
+| 22,304 tokens | 10.4 s | 2.15k tok/s | yes |
+| 32,612 tokens | 15.6 s | 2.09k tok/s | **no** (see known issues) |
+
+Prefill holds 2.1 to 2.3k tok/s at long context and is not flat, so the long-prompt path is
+properly adapted. For reference, the same-protocol RTX 4080 SUPER first-hand measurement is
+2,230 tok/s prefill: this card matches it.
+
+### Multi-turn (8-turn conversation, growing history)
+
+Decode stays 100 to 124 t/s from the first to the eighth turn; per-turn total 0.5 to 1.7 s.
+Prefix reuse engages from the third request and reaches 97 to 98 percent
+(`cache 1,053 (98.2%, private endpoint)`), TTFT drops to about 78 ms, so history is not
+re-prefilled per turn.

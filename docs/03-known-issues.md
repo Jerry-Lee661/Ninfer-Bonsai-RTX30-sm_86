@@ -99,3 +99,19 @@ a 131K-token KV pool at rk4v4 is about 2.1 GB per stage on split layers). Decode
 gains are limited: pipeline decode is bounded by the slowest stage plus the inter-stage
 transfer, so for a 27B model that already fits one 12 GB card, expect little to no speedup.
 Two independent serve instances (one per card) remain the throughput option.
+
+## 9. Needle retrieval miss at the 32K pool edge (rk4v4, open)
+
+In the prefill ladder above, the needle was answered correctly at 1.4K, 5.4K and 22.3K prompt
+tokens but missed at 32,612 tokens (the model replied that the data was absent, while the needle
+was the sentence right before the question). The prompt fit the 32,768-token pool
+(`prompt_tokens 32,612`), so it is not truncation.
+
+Suspects, unverified: rk4v4 quantized-KV quality at the far edge of the pool, or a quality cliff
+of the hybrid (GDN plus full attention) stack near 32K. bf16 KV at 32K cannot be loaded on a
+12 GB card (the pool alone would be about 4 GB, weights 8.6 GB), so the A/B has to wait for a
+larger card or a narrower pool.
+
+Practical mitigation: keep working context at or below about 22 to 24K tokens with rk4v4, or
+switch to `rk8v4`/`int8` KV (better fidelity, double the bytes) when retrieval quality matters
+more than capacity.
