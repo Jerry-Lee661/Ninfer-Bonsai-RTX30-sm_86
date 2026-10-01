@@ -147,3 +147,26 @@ Builds made from the damaged `serve_options.cpp` (including the first 0.1.0 arch
 and `--kv-headroom-mib` then fails with `--kv-headroom-mib requires --kv-capacity auto`. On such a
 build, pass a number instead of `auto` and omit `--kv-headroom-mib` (equivalently, size the pool
 yourself). The fixed parser in `patches/` restores the guard.
+
+## Prompt cache backed by host memory (the "borrowed memory" cache)
+
+NInfer keeps a tiered context cache: device KV pool, a pinned-host tier, and optional disk tiers.
+Host-tier reuse was verified in the multi-turn test above (97 to 98 percent prefix hits). Two more
+modes exist:
+
+**Hybrid block cache** (`--use-alt-prefix-caching`): free VRAM becomes a content-addressed block
+cache and `--host-cache-mib` sizes the pinned-host tier. Verified on this card with a 1 GiB host
+tier: the same 7,623-token document served twice hit
+`cache 7,614 (99.9%, shared prefix)` and the second round finished in 75 ms total
+(TTFT 42.9 ms); a follow-up turn on the same document hit 50.3 percent.
+
+Windows caveat, measured twice: **a pinned host allocation is mapped into the GPU address space
+and competes with VRAM**, so on a 12 GB card the host tier cannot be large. With 7.99 GiB of
+weights and a KV pool, 4 GiB and 2 GiB `--host-cache-mib` both failed
+(`cudaErrorAlreadyMapped`); 1 GiB started and worked. Size the host tier to what the startup
+error reports as free, or stay on the default checkpoint catalog.
+
+**Persistent caches** (survive restarts): `--prefix-cache-file PATH` (hybrid mode saves and
+restores the Host tier), and `--disk-kv-path DIR` with `--disk-kv-gib`, `--disk-kv-restore`,
+`--disk-kv-directstorage` (a disk tier of evicted continuations). Neither is verified on this
+card yet.
