@@ -11,7 +11,7 @@ Ternary-Bonsai-2-27B-NInfer-v3. KV cache and state at defaults (bf16 KV).
 | MTP 2 drafts | **103.8** | 163.5 | 38.3% / 72.6% |
 | MTP 3 drafts | | 175.8 | 61.3% |
 | MTP 5 drafts | 97.6 | **198.8** | 20.1% / 58.3% |
-| DFlash2 5 drafts | | 65.8 | 71.0% (high per-round cost, see known issues) |
+| DFlash2 5 drafts | | 241.6 | 52.3% (re-measured 2026-10-03 on an idle GPU, see known issues #1) |
 
 Same artifact through the command line binary (`ninfer.exe`):
 

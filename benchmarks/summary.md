@@ -18,7 +18,12 @@
 | MTP 2 drafts | 103.8 | 163.5 | 38.3% / 72.6% |
 | MTP 3 drafts | | 175.8 | / 61.3% |
 | MTP 5 drafts | 97.6 | 198.8 | 20.1% / 58.3% |
-| DFlash2 5 drafts | | 65.8 | / 71.0% |
+| DFlash2 5 drafts | | 241.6 | / 52.3% |
+
+The DFlash2 row was re-measured on 2026-10-03 with the same release binary (md5 `cba4a0d2cfde`)
+on an idle GPU; the originally published 65.8 t/s was taken while another inference server was
+decoding on the same card and is withdrawn (see known issues #1). Counting corpus with the same
+setup: 374.8 t/s at 5 drafts (acceptance 99.1%), 578.1 t/s at 12 drafts (acceptance 89.5%).
 
 ## Command line matrix (same artifact)
 

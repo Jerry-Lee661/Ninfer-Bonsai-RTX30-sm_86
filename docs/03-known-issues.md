@@ -1,19 +1,27 @@
 # Known issues and workarounds
 
-## 1. DFlash2 has a very high per-round cost under the server (open)
+## 1. DFlash2 round cost under the server (resolved 2026-10-03)
 
-Command line binary (`ninfer.exe`) with DFlash2 5 drafts reaches about 233 t/s on English text.
-The same artifact under `ninfer-serve` reaches 65.8 t/s, while acceptance stays at 71 percent
-(4.85 tokens per round).
+The original report on this page said the server reached 65.8 t/s with DFlash2 while the command
+line reached 233 t/s, with round latency of about 73.7 ms against 18 to 20 ms. That reading does
+not reproduce on the released binary and is withdrawn.
 
-Where it comes from: speculation does run under the server (the request log shows
-`mixed speculation accepted`, and `/stats` reports `decode_rounds` over
-`committed_decode_tokens` of 4.85). The problem is round latency: about 73.7 ms per round under
-the server against about 18 to 20 ms on the command line. MTP does not show this behaviour (MTP
-with 2 drafts already gives 103.8 t/s).
+Re-measured on 2026-10-03 with the exact v0.1.0 release binary (md5 `cba4a0d2cfde`, verified
+against the published asset) on an idle RTX 3080 Ti, `--spec dflash2 --lm-head-draft
+--max-concurrency 1`:
 
-Workaround: deploy with MTP (`--spec mtp --draft-tokens 2` up to 5). It covers the target
-throughput. Verify DFlash2 numbers on the command line first if you need that backend.
+| Corpus | drafts | decode | acceptance | round latency |
+|---|---|---|---|---|
+| English prose, 46 in / 500 out | 5 | **241.6 t/s** | 52.3% | about 15 ms |
+| Counting, 1133 in / 400 out | 5 | **374.8 t/s** | 99.1% | about 14 ms |
+| Counting, 1133 in / 400 out | 12 | **578.1 t/s** | 89.5% | about 12 ms |
+
+Root cause of the wrong reading: the 09-29 measurements were taken while another inference server
+was decoding on the same GPU, which inflated every round. Any throughput number captured on a busy
+GPU is invalid; re-measure on an idle card before filing a performance issue.
+
+Deeper drafts still behave as upstream documents: they pay off on predictable text (counting) and
+cost on open-ended text. Section 2 (Chinese acceptance) is unaffected by this fix.
 
 ## 2. Speculation helps less on Chinese text
 
