@@ -7,6 +7,22 @@ Windows build scripts, ready-to-run launcher scripts, and measured numbers.
 The engine comes from [iamwavecut/ninfer-all](https://github.com/iamwavecut/ninfer-all)
 (Apache-2.0). Credit and lineage are in [ATTRIBUTION.md](ATTRIBUTION.md).
 
+## What is new in v0.2.0: the KVMem ring
+
+The engine now integrates the **KVMem ring**: the device KV pool may be smaller than
+`--max-context` because pages are retrieved from a pinned host pool on demand, ranked by a
+query-conditioned content score. On a 12 GB card this puts long context in the same binary
+as the speculative stack, and the DFlash2 tier now starts on 12 GB. First real sm_86
+validation of that ring (the fusion authors had no sm_86 card on their build box).
+Provenance: [NOTICE-fusion.md](NOTICE-fusion.md), release notes in
+[RELEASE_NOTES_v0.2.0.md](RELEASE_NOTES_v0.2.0.md), upstream contribution plan in
+[docs/upstream-contributions.md](docs/upstream-contributions.md).
+
+| English prompts, greedy, idle RTX 3080 Ti | counting (1133 in / 400 out) | prose (46 in / 500 out) |
+|---|---|---|
+| MTP d4 | 231.6 t/s (91.3% accepted) | 158.6 t/s (52.9%) |
+| DFlash2 d5 + lm-head-draft | 317.7 t/s (99.7%) | 205.7 t/s (52.3%) |
+
 ## What this repository is for
 
 The flags `--spec`, `--draft-tokens` and 60 or so others are **silently ignored** by some builds of
@@ -25,9 +41,15 @@ are in [docs/02-benchmarks.md](docs/02-benchmarks.md).
 
 ## Download
 
-- **Prebuilt package**: six parts attached to the
-  [v0.1.0 release](https://github.com/Jerry-Lee661/Ninfer-Bonsai-RTX30-sm_86/releases/tag/v0.1.0),
-  812 MB total. Merge and verify as described in [docs/04-downloads.md](docs/04-downloads.md).
+- **Prebuilt package**: attached to the
+  [v0.2.0 release](https://github.com/Jerry-Lee661/Ninfer-Bonsai-RTX30-sm_86/releases/tag/v0.2.0)
+  (KVMem build; 10 parts, 1.46 GiB total zip (sha256 b46c1050...)). Merge and verify as described in
+  [docs/04-downloads.md](docs/04-downloads.md). The v0.1.0 release
+  ([six parts, 812 MB](https://github.com/Jerry-Lee661/Ninfer-Bonsai-RTX30-sm_86/releases/tag/v0.1.0))
+  stays available.
+- **Model artifact** (what the engine loads, 9.52 GB):
+  `https://hf-mirror.com/WaveCut/Ternary-Bonsai-2-27B-NInfer-v3/resolve/main/Ternary-Bonsai-2-27B-ninfer-v3.ninfer`
+  SHA256 `cdc4810b0ff17c40d0f62cf214b6e0bcd08346e9eb05ca53371507037793c14a`
 - **Model artifact** (what the engine loads, 9.52 GB):
   `https://hf-mirror.com/WaveCut/Ternary-Bonsai-2-27B-NInfer-v3/resolve/main/Ternary-Bonsai-2-27B-ninfer-v3.ninfer`
   SHA256 `cdc4810b0ff17c40d0f62cf214b6e0bcd08346e9eb05ca53371507037793c14a`

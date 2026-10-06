@@ -123,3 +123,21 @@ larger card or a narrower pool.
 Practical mitigation: keep working context at or below about 22 to 24K tokens with rk4v4, or
 switch to `rk8v4`/`int8` KV (better fidelity, double the bytes) when retrieval quality matters
 more than capacity.
+
+## 10. KVMem ring limits (v0.2.0, disclosed up front)
+
+- Retrieval visibility is approximate when the device pool is smaller than the prompt: one
+  secret in a mid-prompt needle paragraph was answered correctly while a companion code in
+  the same paragraph was not echoed (the page-seam truncation class the ring's authors
+  document). Treat answers that depend on exact spans over a large over-pool factor with
+  suspicion and re-ask.
+- Fused rmsnorm+rope prefill chunks cannot expose pre-RoPE keys, so those chunks stay out of
+  the retrieval index; the engine logs one line per skipped chunk at startup.
+- The host KV pool is pinned RAM mapped into the GPU address space on Windows: it competes
+  with VRAM. The shipped launchers use 2048 MiB; raising it on a 12 GB card invites the
+  same startup refusal class as issue 4.
+- A startup WARN `CUDA graphs used ... but the KV sizing allowed ...` is benign under
+  desktop memory pressure; the engine still reaches ready. `--kv-headroom-mib 512` silences
+  it.
+- Counting corpus with MTP d4 on this build: 231.6 to 263.5 t/s depending on measurement
+  window (GPU clock state), same acceptance. Compare only same-window numbers.
